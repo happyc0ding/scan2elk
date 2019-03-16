@@ -1,0 +1,26 @@
+title:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+isChainOrderValid:
+  type: keyword
+
+certificateMatchesServerHostname:
+  type: text
+
+serverHostname:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+usingTrustStore:
+  type: keyword
+
+validationResult:
+  type: keyword
+
+isSupported:
+  type: keyword

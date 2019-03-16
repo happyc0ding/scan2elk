@@ -1,0 +1,5 @@
+cve:
+  type: text
+  fields:
+    raw:
+      type: keyword

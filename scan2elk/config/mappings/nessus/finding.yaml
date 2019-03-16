@@ -1,0 +1,65 @@
+pluginName:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+svc_name:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+pluginID:
+  type: integer
+  fields:
+    raw:
+      type: keyword
+
+risk_factor:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+severity:
+  type: integer
+
+pluginFamily:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+plugin_type:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+svcid:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+synopsis:
+  type: text
+  index: false
+  fields:
+    raw:
+      type: keyword
+
+solution:
+  type: text
+  index: false
+  fields:
+    raw:
+      type: keyword
+
+host_fqdn:
+  type: text
+  copy_to: hostname
+  fields:
+    raw:
+      type: keyword

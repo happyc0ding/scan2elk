@@ -1,0 +1,25 @@
+analysis:
+  analyzer:
+    lowercase_analyzer:
+      type: custom
+      tokenizer: standard
+      filter:
+      - lowercase
+
+    uppercase_analyzer:
+      type: custom
+      tokenizer: standard
+      filter:
+      - uppercase
+
+
+  normalizer:
+    lowercase_normalizer:
+      type: custom
+      filter:
+      - lowercase
+
+    uppercase_normalizer:
+      type: custom
+      filter:
+      - uppercase

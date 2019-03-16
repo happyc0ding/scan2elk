@@ -1,0 +1,85 @@
+subject:
+  type: object
+  properties:
+    C:
+      type: text
+    CN:
+      type: text
+      copy_to: m_common_name
+    ST:
+      type: text
+    L:
+      type: text
+    O:
+      type: text
+    OU:
+      type: text
+
+issuer:
+  type: object
+  properties:
+    C:
+      type: text
+    CN:
+      type: text
+    ST:
+      type: text
+    L:
+      type: text
+    O:
+      type: text
+    OU:
+      type: text
+
+san:
+  type: text
+  copy_to: m_san
+  fields:
+    raw:
+      type: keyword
+
+not_after:
+  type: date
+  format: yyyy-MM-dd HH:mm:ssZ
+  fields:
+    raw:
+      type: text
+
+not_before:
+  type: date
+  format: yyyy-MM-dd HH:mm:ssZ
+  fields:
+    raw:
+      type: text
+
+public_key_len:
+  type: integer
+  copy_to: m_public_key_len
+
+serial_number:
+  type: text
+  copy_to: m_serial_number
+  fields:
+    raw:
+      type: keyword
+
+signature_algorithm:
+  type: text
+  copy_to: m_signature_algorithm
+  fields:
+    raw:
+      type: keyword
+
+sha1_fingerprint:
+  type: text
+  copy_to: m_sha1_fingerprint
+  fields:
+    raw:
+      type: keyword
+
+sha2_fingerprint:
+  type: text
+  copy_to: m_sha2_fingerprint
+  fields:
+    raw:
+      type: keyword

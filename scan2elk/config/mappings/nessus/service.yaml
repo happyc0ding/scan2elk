@@ -1,0 +1,13 @@
+detected_software:
+  type: nested
+  properties:
+    name:
+      type: text
+      fields:
+        raw:
+          type: keyword
+    version:
+      type: text
+      fields:
+        raw:
+          type: keyword

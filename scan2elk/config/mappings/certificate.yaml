@@ -1,0 +1,53 @@
+# global mappings or copy_to fields for certs
+
+m_serial_number:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+m_common_name:
+  type: text
+
+m_subject:
+  type: text
+
+m_issuer:
+  type: text
+
+m_public_key_len:
+  type: integer
+
+m_public_key_algorithm:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+m_san:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+m_signature_algorithm:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+m_sha1_fingerprint:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+m_sha2_fingerprint:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+# these have to be configured in every conf file:
+# not_after
+# not_before

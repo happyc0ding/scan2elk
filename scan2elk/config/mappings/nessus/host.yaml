@@ -1,0 +1,16 @@
+host_start:
+  type: date
+  format: EEE MMM d HH:mm:ss yyyy
+
+host_end:
+  type: date
+  format: EEE MMM d HH:mm:ss yyyy
+
+operating-system:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+os:
+  type: keyword

@@ -1,0 +1,73 @@
+subject:
+  type: object
+  properties:
+    commonName:
+      type: text
+      copy_to: m_common_name
+    countryName:
+      type: text
+    localityName:
+      type: text
+    organizationName:
+      type: text
+    stateOrProvinceName:
+      type: text
+
+issuer:
+  type: object
+  properties:
+    commonName:
+      type: text
+    countryName:
+      type: text
+    localityName:
+      type: text
+    organizationName:
+      type: text
+    stateOrProvinceName:
+      type: text
+
+pubkey:
+  type: object
+  properties:
+    bits:
+      type: integer
+      copy_to: m_public_key_len
+    type:
+      type: keyword
+
+validity:
+  type: object
+  properties:
+    notAfter:
+      type: date
+      copy_to: not_after
+      format: yyyy-MM-dd'T'HH:mm:ss
+    notBefore:
+      type: date
+      copy_to: not_before
+      format: yyyy-MM-dd'T'HH:mm:ss
+
+sig_algo:
+  type: text
+  copy_to: m_signature_algorithm
+  fields:
+    raw:
+      type: keyword
+
+sha1:
+  type: text
+  copy_to: m_sha1_fingerprint
+  fields:
+    raw:
+      type: keyword
+
+md5:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+pem:
+  type: text
+  index: false

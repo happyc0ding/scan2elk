@@ -1,0 +1,70 @@
+asPEM:
+  type: keyword
+  index: false
+
+signatureValue:
+  type: keyword
+  index: false
+
+CTPrecertificateSCTs:
+  type: keyword
+  index: false
+
+modulus:
+  type: keyword
+  index: false
+
+commonName:
+  type: text
+  copy_to: m_common_name
+  fields:
+    raw:
+      type: keyword
+
+notAfter:
+  type: date
+  copy_to: not_after
+  format: MMM dd HH:mm:ss yyyy z
+  fields:
+    raw:
+      type: text
+
+notBefore:
+  type: date
+  copy_to: not_before
+  format: MMM dd HH:mm:ss yyyy z
+  fields:
+    raw:
+      type: text
+
+position:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+publicKeySize:
+  type: integer
+  copy_to: m_public_key_len
+
+serialNumber:
+  type: text
+  copy_to: m_serial_number
+  fields:
+    raw:
+      type: keyword
+
+signatureAlgorithm:
+  type: text
+  copy_to: m_signature_algorithm
+  fields:
+    raw:
+      type: keyword
+
+
+publicKeyAlgorithm:
+  type: text
+  copy_to: m_public_key_algorithm
+  fields:
+    raw:
+      type: keyword

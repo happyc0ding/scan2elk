@@ -1,0 +1,32 @@
+cipher:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+bits:
+  type: integer
+
+ecdhebits:
+  type: integer
+
+dhebits:
+  type: integer
+
+sslversion:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+status:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+curve:
+  type: text
+  fields:
+    raw:
+      type: keyword

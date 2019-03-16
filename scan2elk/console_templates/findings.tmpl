@@ -1,0 +1,7 @@
+%< for plugin_id, plugin_name in plugins.items() >%
+% <<plugin_id>>: <<plugin_name>>
+%< endfor >%
+
+%< for ip, data in result.items() >%
+<<ip>> (<<data.hostnames|sort|join(', ')|tex>>): <<data.tcp_ports|sort|join(', ')>> % <<data.plugin_ids|sort|join(', ')>>
+%< endfor >%

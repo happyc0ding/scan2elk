@@ -1,0 +1,22 @@
+tls_protocol:
+  type: text
+  analyzer: uppercase_analyzer
+  fields:
+    raw:
+      type: keyword
+      normalizer: uppercase_normalizer
+
+key_exchange_algorithm:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+key_exchange_bits:
+  type: integer
+  fields:
+    raw:
+      type: keyword
+
+key_size:
+  type: integer

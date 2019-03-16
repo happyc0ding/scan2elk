@@ -1,0 +1,41 @@
+id:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+ip:
+  type: ip
+  fields:
+    raw:
+      type: text
+
+port:
+  type: integer
+
+ports:
+  type: object
+  properties:
+    protocol:
+      type: keyword
+    port:
+      type: integer
+
+protocol:
+  type: keyword
+  normalizer: uppercase_normalizer
+
+hostname:
+  type: text
+
+src_file:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+name:
+  type: text
+  fields:
+    raw:
+      type: keyword

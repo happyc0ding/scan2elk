@@ -1,0 +1,68 @@
+certificate-blob:
+  type: keyword
+  index: false
+
+signature-algorithm:
+  type: text
+  copy_to: m_signature_algorithm
+  fields:
+    raw:
+      type: keyword
+
+serial:
+  type: text
+  copy_to: m_serial_number
+  fields:
+    raw:
+      type: keyword
+
+pk:
+  type: object
+  properties:
+    bits:
+      type: integer
+    type:
+      type: keyword
+    error:
+      type: keyword
+
+subject:
+  type: text
+  copy_to: m_subject
+  fields:
+    raw:
+      type: keyword
+
+altnames:
+  type: text
+  copy_to: m_san
+  fields:
+    raw:
+      type: keyword
+
+issuer:
+  type: text
+  copy_to: m_issuer
+  fields:
+    raw:
+      type: keyword
+
+
+not-valid-after:
+  type: date
+  copy_to: not_after
+  format: yyyy-MM-dd HH:mm
+  fields:
+    raw:
+      type: text
+
+not-valid-before:
+  type: date
+  copy_to: not_before
+  format: yyyy-MM-dd HH:mm
+  fields:
+    raw:
+      type: text
+
+expired:
+  type: keyword

@@ -1,0 +1,12 @@
+anonymous:
+  type: keyword
+  fields:
+    raw:
+      type: text
+connectionStatus:
+  type: text
+  fields:
+    raw:
+      type: keyword
+keySize:
+  type: integer

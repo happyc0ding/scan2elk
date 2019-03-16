@@ -1,0 +1,23 @@
+product:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+version:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+tunnel:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+servicefp:
+  type: text
+
+conf:
+  type: integer

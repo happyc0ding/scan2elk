@@ -1,0 +1,7 @@
+hostnames:
+  type: object
+  properties:
+    name:
+      type: text
+    type:
+      type: keyword

@@ -1,0 +1,24 @@
+name:
+  type: text
+  fields:
+    raw:
+      type: keyword
+      normalizer: lowercase_normalizer
+
+cve:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+finding:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+severity:
+  type: text
+  fields:
+    raw:
+      type: keyword
