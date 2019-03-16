@@ -8,7 +8,9 @@ Currently supported (also check https://github.com/happyc0ding/vulnscan-parser!)
 * sslyze
 
 # Requirements
-see requirements.txt, also install https://github.com/happyc0ding/vulnscan-parser (I recommend using "pip install -e" for now).
+See requirements.txt, also install https://github.com/happyc0ding/vulnscan-parser (I recommend using "pip install -e" for now).
+
+When using testssl, I recommend the following parameters: `-E -U -S -P -s` in order to produce usable results.
 
 # Configuration and elk mappings
 See "config" folder.
