@@ -1,7 +1,7 @@
 # scan2elk
 Put your scan results from Nessus, Nmap, testssl etc. into Elasticsearch.
 
-Currently supported (also check https://github.com/happyc0ding/vulnscan-parser!):
+Currently supported (also check https://github.com/happyc0ding/vulnscan-parser regarding input files!):
 * Nessus
 * testssl
 * Nmap
@@ -10,13 +10,13 @@ Currently supported (also check https://github.com/happyc0ding/vulnscan-parser!)
 # Requirements
 See requirements.txt, also install https://github.com/happyc0ding/vulnscan-parser (I recommend using "pip install -e" for now).
 
-When using testssl, I recommend the following parameters: `-E -U -S -P -s` in order to produce usable results.
+When using testssl, I recommend the following parameters: `-E -U -S -P -p -s` in order to produce usable results.
 
 # Configuration and elk mappings
 See "config" folder.
 
 # Indices
-The data is parsed in several indices:
+The data is parsed into several indices:
 * finding: Contains finding entries (finding name, severity, ...)
 * host: Contains hosts (IP address, hostnames, ...)
 * service: Service info (port, protocol, detected service, ...)
@@ -24,7 +24,7 @@ The data is parsed in several indices:
 * cipher: Parsed SSL/TLS ciphers (cipher name, bit size, tls protocol, ...)
 
 # Usage
-Start elasticsearch (and modify db.yaml if necessary).
+Start elasticsearch (and modify scan2elk's db.yaml if necessary).
 
 Let's assume you have the following files in "/path/to/scan/results":
 * file1.nessus (Nessus XML v2)
