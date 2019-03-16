@@ -15,5 +15,4 @@ python-libnmap==0.7.0
 PyYAML==5.1
 six==1.12.0
 urllib3==1.24.1
--e git+gitel@myrs-git:vulnscan-parser.git@927667da4216adce9b5ee74624ec40b50106369b#egg=vulnscan_parser
 wcwidth==0.1.7
