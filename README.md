@@ -23,8 +23,13 @@ The data is parsed in several indices:
 
 # Usage
 Start elasticsearch (and modify db.yaml if necessary).
+
+Let's assume you have the following files in "/path/to/scan/results":
+* file1.nessus (Nessus XML v2)
+* host1.xml (Nmap XML)
+* host1.json (testssl Json or Json pretty)
 ```
-./scan2elk -dir /path/to/scan/results -project my_project_name
+./scan2elk -dir /path/to/scan/results -project myprojectname
 ```
 This will create several indices for every source:
 * finding
@@ -33,4 +38,25 @@ This will create several indices for every source:
 * certificate
 * cipher
 
---> i.e. index "finding_nessus_my_project_name" containing all findings, "host_nessus_my_project_name", ..., "host_nmap_my_project_name", ...
+--> Results in i.e. index "finding_nessus_myprojectname" containing all findings, "host_nessus_myprojectname", ..., "host_nmap_myprojectname", ...
+
+You can now query elk:
+* (In "host_nessus_myprojectname") ip:10.0.0.1
+* (In "finding_nessus_myprojectname") ip:10.0.0.1 AND pluginName:SSL AND severity:>2
+* ...
+
+For displaying raw results the script "interactive.py" will help you (tab completion is available for every command!), i.e.:
+```
+./interactive.py
+> setproject myprojectname
+> setindices finding_testssl_myprojectname
+> settemplate raw
+> search NOT severity:OK AND hostname:example.org
+> quit
+```
+or
+```
+./interactive.py "setproject myprojectname" "setindices finding_testssl_myprojectname" "settemplate raw"
+> search NOT severity:OK AND hostname:example.org
+```
+This will help you for debugging which fields are available and which results your query will produce.
