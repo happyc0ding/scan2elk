@@ -24,7 +24,11 @@ class Scan2ElkInteractive(cmd2.Cmd):
 
     def __init__(self):
         super().__init__()
+        # set minimal prompt
         self.prompt = '> '
+        # necessary due to problems with chars like '>' in search queries
+        self.allow_redirection = False
+
         self.project_name = ''
         self.indices = set()
         self.es = Elasticsearch()
@@ -33,11 +37,16 @@ class Scan2ElkInteractive(cmd2.Cmd):
         self.last_query = ''
         self.sort = []
         self.existing_fields = {}
-        self.all_existing_fields = set()
         self.current_fields = set()
         self.refresh_indices_and_fields()
-        # necessary due to problems with chars like '>' in search queries
-        self.allow_redirection = False
+
+    @property
+    def all_existing_fields(self):
+        all_fields = set()
+        for fields in self.existing_fields.values():
+            all_fields |= fields
+
+        return all_fields
 
     def refresh_indices_and_fields(self):
         for index in self.es.indices.get('*').keys():
@@ -49,7 +58,7 @@ class Scan2ElkInteractive(cmd2.Cmd):
                 self.existing_fields[mname]
             except KeyError:
                 self.existing_fields[mname] = set()
-            for prop in data['mappings'][mname]['properties']:
+            for prop in data['mappings']['properties']:
                 self.existing_fields[mname].add(prop)
                 self.all_existing_fields.add(prop)
     #

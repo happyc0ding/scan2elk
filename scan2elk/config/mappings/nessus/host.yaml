@@ -1,10 +1,10 @@
 host_start:
   type: date
-  format: EEE MMM d HH:mm:ss yyyy
+  format: date_hour_minute_second
 
 host_end:
   type: date
-  format: EEE MMM d HH:mm:ss yyyy
+  format: date_hour_minute_second
 
 operating-system:
   type: text

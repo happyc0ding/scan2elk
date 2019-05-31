@@ -19,7 +19,7 @@ cert_subjectaltname:
 cert_notafter:
   type: date
   copy_to: not_after
-  format: yyyy-MM-dd HH:mm
+  format: date_hour_minute_second
   fields:
     raw:
       type: text
@@ -27,7 +27,7 @@ cert_notafter:
 cert_notbefore:
   type: date
   copy_to: not_before
-  format: yyyy-MM-dd HH:mm
+  format: date_hour_minute_second
   fields:
     raw:
       type: text

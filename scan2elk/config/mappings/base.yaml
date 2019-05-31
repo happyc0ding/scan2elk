@@ -8,7 +8,7 @@ ip:
   type: ip
   fields:
     raw:
-      type: text
+      type: keyword
 
 port:
   type: integer

@@ -48,6 +48,10 @@ m_sha2_fingerprint:
     raw:
       type: keyword
 
+pem:
+  type: keyword
+  index: false
+
 # these have to be configured in every conf file:
 # not_after
 # not_before

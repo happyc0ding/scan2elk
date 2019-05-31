@@ -12,16 +12,7 @@ class DataHandler(object):
 
     NAME = 'to be overwritten in child'
 
-    base_mapping_certificate = {}
-    base_mapping_cipher = {}
-    base_mapping_finding = {}
-    base_mapping_host = {}
-    base_mapping_service = {}
-
-    base_mapping = {}
-    mapping_settings = {}
-
-    def __init__(self):
+    def __init__(self, ignoremappings=False):
         super().__init__()
         self.root_path = os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.pardir))
         self.bulk_size = 1200
@@ -29,16 +20,81 @@ class DataHandler(object):
         self.index_types = ['finding', 'host', 'certificate', 'cipher', 'service']
         self.log_data_inserts = False
 
-        with open(os.path.join(self.root_path, 'config', 'db.yaml'), 'r') as conf_file:
-            config = yaml.safe_load(conf_file)
+        self._es = None
+        self.certificate_mapping = {}
+        self.cipher_mapping = {}
+        self.finding_mapping = {}
+        self.host_mapping = {}
+        self.service_mapping = {}
+
+        self.base_mapping_certificate = {}
+        self.base_mapping_cipher = {}
+        self.base_mapping_finding = {}
+        self.base_mapping_host = {}
+        self.base_mapping_service = {}
+
+        self.base_mapping = {}
+        self.mapping_settings = {}
+
+        self.xdg_config_home = ''
+        try:
+            self.xdg_config_home = os.environ['XDG_CONFIG_HOME']
+        except KeyError:
+            pass
+        if not self.xdg_config_home:
+            self.xdg_config_home = os.path.join(os.path.expanduser('~'), '.config', 'scan2elk')
+
+        self.init_db()
+        if not ignoremappings:
+            self.init_mappings()
+
+    def get_yaml_file(self, file_path, ignore_error=False):
+        yaml_data = {}
+        try:
+            with open(file_path, 'r') as yaml_file:
+                yaml_data = yaml.safe_load(yaml_file)
+        except FileNotFoundError:
+            if not ignore_error:
+                LOGGER.exception('Error opening config file: {}'.format(file_path))
+                raise
+            LOGGER.debug('Cannot open config file: {}'.format(file_path))
+
+        return yaml_data
+
+    def _load_mapping_config(self, file_name, ignore_error=False):
+        conf = {}
+        config_path = os.path.join(self.root_path, 'config', 'mappings', self.NAME, '{}.yaml'.format(file_name))
+        xdg_config_path = os.path.join(self.xdg_config_home, 'mappings', self.NAME, '{}.yaml'.format(file_name))
+
+        for file_path in (config_path, xdg_config_path):
+            yaml_conf = self.get_yaml_file(file_path, ignore_error)
+            # empty config file
+            if yaml_conf is not None:
+                conf.update(yaml_conf)
+            else:
+                LOGGER.debug('Empty config file: {}'.format(file_path))
+            # ignore error for custom files
+            ignore_error = True
+
+        return conf
+
+    def init_db(self):
+        config = {
+            **self.get_yaml_file(os.path.join(self.root_path, 'config', 'db.yaml')),
+            **self.get_yaml_file(os.path.join(self.xdg_config_home, 'db.yaml'), True)
+        }
         self._es = Elasticsearch(host=config['host'], port=config['port'])
 
+    def init_mappings(self):
         # init settings and base mapping once
-        if len(self.base_mapping) < 1:
-            with open(os.path.join(self.root_path, 'config', 'mappings', 'settings.yaml'), 'r') as settings_file:
-                self.mapping_settings = yaml.safe_load(settings_file)
-            with open(os.path.join(self.root_path, 'config', 'mappings', 'base.yaml'), 'r') as base_file:
-                self.base_mapping = yaml.safe_load(base_file)
+        self.mapping_settings = {
+            **self.get_yaml_file(os.path.join(self.root_path, 'config', 'mappings', 'settings.yaml')),
+            **self.get_yaml_file(os.path.join(self.xdg_config_home, 'mappings', 'settings.yaml'), True)
+        }
+        self.base_mapping = {
+            **self.get_yaml_file(os.path.join(self.root_path, 'config', 'mappings', 'base.yaml')),
+            **self.get_yaml_file(os.path.join(self.xdg_config_home, 'mappings', 'base.yaml'), True)
+        }
 
         for index in self.index_types:
             # all specific base mappings only have to be initialized once
@@ -69,43 +125,37 @@ class DataHandler(object):
         self.service_mapping = {**self.base_mapping, **self.base_mapping_service,
                                 **self._load_mapping_config('service')}
 
-    def _load_mapping_config(self, file_name, ignore_error=False):
-        conf = {}
-        file_path = os.path.join(self.root_path, 'config', 'mappings', self.NAME, '{}.yaml'.format(file_name))
-        try:
-            with open(file_path, 'r') as conf_file:
-                conf = yaml.safe_load(conf_file)
-                # empty config file
-                if conf is None:
-                    LOGGER.debug('Empty config file: {}'.format(file_path))
-                    conf = {}
-        except IOError:
-            if not ignore_error:
-                LOGGER.exception('Error opening config file: {}'.format(file_path))
-                raise
-            LOGGER.debug('Cannot open config file: {}'.format(file_path))
-
-        return conf
-
-    # def init_indices(self, indices):
-    #     for index, mapping in indices:
-    #         self.init_index(index, mapping)
-        #self._es.indices.put_mapping(index=index, doc_type=self.doctype, body={'properties': mapping})
-
     def create_index(self, name, index, mapping):
         self.index_names[name] = index
         self._es.indices.delete(index=index, ignore=[404])
+
         self._es.indices.create(
             index=index,
             body={
                 'settings': self.mapping_settings,
                 'mappings': {
-                    index: {
+                    '_doc': {
                         'properties': mapping
                     }
                 }
-            }
+            },
+            include_type_name=True
         )
+
+    def delete_indices(self, project=None):
+        indices = []
+        for existing_index in self._es.indices.get('*').keys():
+            # avoid deleting unrelated indices (not 100% safe though!)
+            if project is None:
+                do_delete = any(existing_index.startswith(x) for x in self.index_types)
+            else:
+                do_delete = existing_index.endswith(project)
+
+            if do_delete:
+                self._es.indices.delete(index=existing_index)
+                indices.append(existing_index)
+        if len(indices) > 0:
+            print('Deleted indices: {}'.format(', '.join(sorted(indices))))
 
     def process_findings(self, findings):
         LOGGER.info('Processing findings')
@@ -135,7 +185,7 @@ class DataHandler(object):
             # -> the id field is unique and shoult not exist more than once
             bulk_data.append({
                 'index': {
-                    '_type': index,
+                    '_type': '_doc',
                     '_id': entry['id'],
                 }
             })
@@ -154,13 +204,12 @@ class DataHandler(object):
 
     def _bulk_insert(self, index, bulk_data):
         if len(bulk_data) > 0:
-            LOGGER.info('Writing {} entries to index: {}'.format(len(bulk_data), index))
+            LOGGER.info('Writing {} entries to index: {}'.format(int(len(bulk_data)/2), index))
             bulk_res = self._es.bulk(index=index, body=bulk_data, refresh=False)
             try:
                 if bulk_res['errors']:
                     LOGGER.error('Error while inserting data')
                     LOGGER.error(bulk_res['items'][0]['index']['error'])
-                    #LOGGER.error(bulk_data)
                     raise Exception('Error while inserting into db')
             except KeyError:
                 pass

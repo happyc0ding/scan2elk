@@ -52,7 +52,7 @@ not_before:
     raw:
       type: keyword
 
-public_key_len:
+pubkey_size:
   type: integer
   copy_to: m_public_key_len
 

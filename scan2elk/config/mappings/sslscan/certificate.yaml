@@ -27,11 +27,11 @@ pk:
       type: keyword
 
 subject:
-  type: text
-  copy_to: m_subject
-  fields:
-    raw:
-      type: keyword
+  type: object
+  properties:
+    CN:
+      type: text
+      copy_to: m_common_name
 
 altnames:
   type: text
