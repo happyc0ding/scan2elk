@@ -6,6 +6,7 @@ Currently supported (also check https://github.com/happyc0ding/vulnscan-parser r
 * testssl
 * Nmap
 * sslyze
+* Burp
 
 # Requirements
 See requirements.txt, also install https://github.com/happyc0ding/vulnscan-parser (I recommend using "pip install -e" for now).
