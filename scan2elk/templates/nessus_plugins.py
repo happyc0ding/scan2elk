@@ -10,12 +10,11 @@ class TplNessusPlugins(TplBase):
 
     def render(self, search_result):
         plugins = OrderedDict()
-        line = '{pid}: {pname} ({crit})'
         for finding in search_result.scan():
             try:
                 plugins[finding.pluginID]
             except KeyError:
-                plugins[finding.pluginID] = line.format(pid=finding.pluginID, pname=finding.pluginName,
-                                                        crit=finding.risk_factor)
+                plugins[finding.pluginID] =\
+                    f'{finding.pluginID}: {finding.pluginName} ({finding.risk_factor}/{finding.severity})'
 
         return plugins.values()

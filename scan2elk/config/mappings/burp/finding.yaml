@@ -1,0 +1,47 @@
+serialNumber:
+  type: long
+
+type:
+  type: integer
+
+# name is mapped in base
+# host is mapped to ip and hostname
+
+path:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+location:
+  type: text
+  fields:
+    raw:
+      type: keyword
+
+severity:
+  type: keyword
+
+confidence:
+  type: keyword
+
+issueBackground:
+  type: text
+
+remediationBackground:
+  type: text
+
+references:
+  type: text
+
+requestresponse:
+  type: object
+  properties:
+    request_method:
+      type: keyword
+    request:
+      type: text
+    response:
+      type: text
+    responseRedirected:
+      type: boolean

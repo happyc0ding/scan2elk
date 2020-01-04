@@ -3,7 +3,6 @@
 
 import logging
 from argparse import ArgumentParser
-from pprint import pprint
 import inspect
 import importlib
 import os
@@ -39,6 +38,7 @@ class Scan2ElkInteractive(cmd2.Cmd):
         self.existing_fields = {}
         self.current_fields = set()
         self.refresh_indices_and_fields()
+        self.silent = False
 
     @property
     def all_existing_fields(self):
@@ -67,17 +67,24 @@ class Scan2ElkInteractive(cmd2.Cmd):
     #         print(statement.args)
     #     return super().postparsing_precmd(statement)
 
-    def onecmd(self, statement):
-        if not self.project_name and statement.command not in ('setproject', 'showindices', 'quit', 'exit'):
+    def onecmd(self, statement, *, add_to_history=True):
+        if not self.project_name and statement.command not in\
+                ('setproject', 'showindices', 'setsilent', 'quit', 'exit'):
             self.poutput('You have to set a project first. Check "setproject" command')
             return False
 
-        return super().onecmd(statement)
+        return super().onecmd(statement, add_to_history=add_to_history)
+
+    # noinspection PyUnusedLocal
+    def do_setsilent(self, args):
+        self.silent = not self.silent
+        if not self.silent:
+            self.poutput('Not silent any more')
 
     # noinspection PyUnusedLocal
     def do_showindices(self, args):
         self.poutput('Got available indices:')
-        self.poutput(','.join(sorted(self.existing_indices)))
+        self.poutput('\n'.join(sorted(self.existing_indices)))
 
     showfields_parser = ArgumentParser(description='Show fields in all or selected indices')
     showfields_parser.add_argument('-indices', nargs='+', required=False, help='Indices to check')
@@ -105,6 +112,8 @@ class Scan2ElkInteractive(cmd2.Cmd):
     def do_setproject(self, args):
         self.project_name = args.project[0]
         self.refresh_indices_and_fields()
+        if not self.quiet:
+            print('Set project to: {}'.format(args.project[0]))
 
     setindices_parser = ArgumentParser(description='Set index/indices to search')
     setindices_parser.add_argument('indices', nargs='+', help='Space or comma separated list of indices')
@@ -116,11 +125,17 @@ class Scan2ElkInteractive(cmd2.Cmd):
         for index in args.indices:
             index = index.split(',')
             for index_name in index:
-                if index_name in self.existing_indices:
-                    self.indices.add(index_name)
-                    self.current_fields |= self.existing_fields[index_name]
+                index_name_mod = index_name
+                if index_name_mod not in self.existing_indices:
+                    index_name_mod = f'{index_name}_{self.project_name}'
+                if index_name_mod in self.existing_indices:
+                    self.indices.add(index_name_mod)
+                    self.current_fields |= self.existing_fields[index_name_mod]
                 else:
-                    self.poutput('Unknown index: {}'.format(index_name))
+                    self.poutput('Unknown index: "{}"'.format(index_name))
+
+        # re-check sorting indices and remove unknown fields
+        self._set_sort_fields(self.sort.copy())
 
     # noinspection PyUnusedLocal
     def complete_setindices(self, text, line, begidx, endidx):
@@ -136,7 +151,7 @@ class Scan2ElkInteractive(cmd2.Cmd):
         try:
             template_mod = importlib.import_module('scan2elk.templates.{}'.format(tpl_name))
         except ModuleNotFoundError:
-            self.poutput('Unknown template: {}'.format(tpl_name))
+            self.poutput('Unknown template: "{}"'.format(tpl_name))
             return
 
         template_clazz = None
@@ -150,7 +165,7 @@ class Scan2ElkInteractive(cmd2.Cmd):
         if template_clazz:
             self.template = template_clazz()
         else:
-            self.poutput('Unknown template: {}'.format(tpl_name))
+            self.poutput('Unknown template: "{}"'.format(tpl_name))
 
     def complete_settemplate(self, text, line, begidx, endidx):
         tplpath = os.path.realpath(os.path.join(os.path.dirname(__file__), 'scan2elk', 'templates'))
@@ -160,25 +175,36 @@ class Scan2ElkInteractive(cmd2.Cmd):
         # reset display due to using path_complete
         self.display_matches = []
 
-        return [x for x in all_files if not x.startswith('_') and 'base.py' != x]
+        return [x for x in all_files if not x.startswith('_') and 'base' != x]
+
+    def _set_sort_fields(self, sort_fields):
+        # reset list
+        self.sort = []
+        # split by "," if not list
+        if not isinstance(sort_fields, list):
+            sort_fields = sort_fields.split(',')
+
+        for sort_field in sort_fields:
+            # also split by space, if necessary
+            for sf in sort_field.split(' '):
+                if sf.lstrip('-') in self.current_fields or \
+                        (sf.endswith('.raw') and sf[:-4] in self.current_fields):
+                    self.sort.append(sf)
+                else:
+                    self.poutput('Unknown field: "{}" -> Removed from sorting'.format(sf))
 
     def do_setsort(self, args):
         if not self.indices:
-            self.poutput('Set indices first using setindices!')
+            self.poutput('Set indices first using "setindices"!')
             return
 
-        self.sort = []
-        for sort_fields in args.split(','):
-            for sort in sort_fields.split(' '):
-                if sort.lstrip('-') in self.all_existing_fields:
-                    self.sort.append(sort)
-                else:
-                    self.poutput('Unknown field: '.format(sort))
-        self.poutput('Set sorting to: {}'.format(','.join(self.sort)))
+        self._set_sort_fields(args)
+        if not self.silent:
+            self.poutput('Set sorting to: {}'.format(','.join(self.sort)))
 
     # noinspection PyUnusedLocal
     def complete_setsort(self, text, line, begidx, endidx):
-        return [x for x in self.existing_fields if x.startswith(text) or not text]
+        return [x for x in self.current_fields if x.startswith(text) or not text]
 
     # search_parser = ArgumentParser(description='Search in indices')
     # search_parser.add_argument('searchstr', nargs=1, action='store', help='Search string')
@@ -186,10 +212,10 @@ class Scan2ElkInteractive(cmd2.Cmd):
     # @cmd2.with_argparser(search_parser)
     def do_search(self, statement):
         if not self.template:
-            self.poutput('You have to choose a template using settemplate!')
+            self.poutput('You have to choose a template using "settemplate"!')
             return
         if not self.indices:
-            self.poutput('Set indices first using setindices!')
+            self.poutput('Set indices first using "setindices"!')
             return
 
         # use the raw statement here because chars like '>' might be used in the search, which would redirect
@@ -199,17 +225,20 @@ class Scan2ElkInteractive(cmd2.Cmd):
             search = Search(using=self.es, index=','.join(self.indices))
             q = Q({'query_string': {'query': self.last_query}})
             if not self.sort:
-                self.poutput('Querying db without sorting')
+                if not self.silent:
+                    self.poutput('Querying db without sorting')
                 result = search.query(q)
             else:
                 sorting = ','.join(self.sort)
-                self.poutput('Querying db with sorting: {}'.format(sorting))
+                if not self.silent:
+                    self.poutput('Querying db with sorting: {}'.format(sorting))
                 result = search.query(q).sort(*self.sort).params(preserve_order=True)
 
             self.poutput('\n'.join(self.template.render(result)))
         except ElasticsearchException:
             self.perror('Error while parsing query')
-        self.poutput('Done.')
+        if not self.silent:
+            self.poutput('Done.')
 
     # noinspection PyUnusedLocal
     def complete_search(self, text, line, begidx, endidx):

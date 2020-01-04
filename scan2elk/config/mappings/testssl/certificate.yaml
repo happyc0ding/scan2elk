@@ -1,17 +1,24 @@
 cert:
-  type: keyword
-  index: false
+  type: object
+  enabled: false
 
-commonname:
+cert_commonname:
   type: text
   copy_to: m_common_name
   fields:
     raw:
       type: keyword
 
-cert_subjectaltname:
+m_san:
   type: text
   copy_to: m_san
+  fields:
+    raw:
+      type: keyword
+
+cert_subjectaltname:
+  type: text
+#  copy_to: m_san
   fields:
     raw:
       type: keyword

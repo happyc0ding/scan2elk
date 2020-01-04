@@ -27,6 +27,9 @@ protocol:
 
 hostname:
   type: text
+  fields:
+    raw:
+      type: keyword
 
 src_file:
   type: text

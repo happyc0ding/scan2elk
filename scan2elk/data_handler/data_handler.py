@@ -26,12 +26,14 @@ class DataHandler(object):
         self.finding_mapping = {}
         self.host_mapping = {}
         self.service_mapping = {}
+        self.dynamic_templates_mappings = []
 
         self.base_mapping_certificate = {}
         self.base_mapping_cipher = {}
         self.base_mapping_finding = {}
         self.base_mapping_host = {}
         self.base_mapping_service = {}
+        self.base_mapping_dynamic_templates = {}
 
         self.base_mapping = {}
         self.mapping_settings = {}
@@ -53,6 +55,8 @@ class DataHandler(object):
         try:
             with open(file_path, 'r') as yaml_file:
                 yaml_data = yaml.safe_load(yaml_file)
+                if not isinstance(yaml_data, dict):
+                    yaml_data = {}
         except FileNotFoundError:
             if not ignore_error:
                 LOGGER.exception('Error opening config file: {}'.format(file_path))
@@ -96,6 +100,11 @@ class DataHandler(object):
             **self.get_yaml_file(os.path.join(self.xdg_config_home, 'mappings', 'base.yaml'), True)
         }
 
+        self.base_mapping_dynamic_templates = {
+            **self.get_yaml_file(os.path.join(self.root_path, 'config', 'mappings', 'dynamic_templates.yaml')),
+            **self.get_yaml_file(os.path.join(self.xdg_config_home, 'mappings', 'dynamic_templates.yaml'), True)
+        }
+
         for index in self.index_types:
             # all specific base mappings only have to be initialized once
             # -> if one is not empty we cancel
@@ -124,6 +133,12 @@ class DataHandler(object):
         self.host_mapping = {**self.base_mapping, **self.base_mapping_host, **self._load_mapping_config('host')}
         self.service_mapping = {**self.base_mapping, **self.base_mapping_service,
                                 **self._load_mapping_config('service')}
+        dynamic_templates_mapping = {**self.base_mapping_dynamic_templates,
+                                     **self._load_mapping_config('dynamic_templates', ignore_error=True)}
+
+        if dynamic_templates_mapping:
+            for k, v in dynamic_templates_mapping.items():
+                self.dynamic_templates_mappings.append({k: v})
 
     def create_index(self, name, index, mapping):
         self.index_names[name] = index
@@ -135,9 +150,11 @@ class DataHandler(object):
                 'settings': self.mapping_settings,
                 'mappings': {
                     '_doc': {
-                        'properties': mapping
-                    }
-                }
+                        'dynamic_templates': self.dynamic_templates_mappings,
+                        'properties': mapping,
+                    },
+                },
+
             },
             include_type_name=True
         )

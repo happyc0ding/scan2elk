@@ -23,3 +23,10 @@ analysis:
       type: custom
       filter:
       - uppercase
+
+
+index:
+  mapping:
+    total_fields:
+      # nessus can create quite a lot of fields (dflt is 1000)
+      limit: 3000

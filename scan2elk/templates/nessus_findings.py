@@ -43,7 +43,7 @@ class TplNessusFinding(TplBase):
             findings[finding.ip]['pids'].add(finding.pluginID)
 
         result = []
-        for pstr_sev in sorted(plugins.values(), key=operator.itemgetter('sev'), reverse=True):
+        for pstr_sev in plugins.values():
             result.append(pstr_sev['pstr'])
         result.append('')
 

@@ -23,7 +23,7 @@ risk_factor:
       type: keyword
 
 severity:
-  type: integer
+  type: byte
 
 pluginFamily:
   type: text

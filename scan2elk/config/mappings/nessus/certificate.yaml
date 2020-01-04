@@ -31,9 +31,8 @@ issuer:
     OU:
       type: text
 
-san:
+m_san:
   type: text
-  copy_to: m_san
   fields:
     raw:
       type: keyword

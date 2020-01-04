@@ -1,0 +1,17 @@
+netstat:
+  match: netstat_*
+  mapping:
+    type: text
+    index: false
+
+patchsummary:
+  match: patch_summary_txt_*
+  mapping:
+    type: text
+    index: false
+
+patchsummarynum:
+  match: patch_summary_cve_num_*
+  mapping:
+    type: integer
+    index: false
